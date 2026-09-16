@@ -135,7 +135,7 @@ def test_numeric_jump_is_not_modified():
         ("JUMP", 0),
     ]
 
-def test_compile_resets_labels_between_programs():
+def test_assmbler_resets_labels_between_programs():
     assembler = Assembler()
 
     assembler.assemble([
