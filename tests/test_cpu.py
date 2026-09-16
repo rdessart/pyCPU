@@ -36,9 +36,9 @@ def test_cpu_register_cmp_less():
     cpu.load_program(source)
     cpu.execute()
 
-    assert cpu.zero_flag == False
-    assert cpu.less_flag == True
-    assert cpu.greater_flag == False
+    assert cpu.zero_flag is False
+    assert cpu.less_flag is True
+    assert cpu.greater_flag is False
 
 def test_cpu_register_cmp_bigger():
     cpu = CPU(2)
@@ -50,9 +50,9 @@ def test_cpu_register_cmp_bigger():
     cpu.load_program(source)
     cpu.execute()
 
-    assert cpu.zero_flag == False
-    assert cpu.less_flag == False
-    assert cpu.greater_flag == True
+    assert cpu.zero_flag is False
+    assert cpu.less_flag is False
+    assert cpu.greater_flag is True
 
 def test_cpu_register_cmp_equal():
     cpu = CPU(2)
@@ -64,6 +64,6 @@ def test_cpu_register_cmp_equal():
     cpu.load_program(source)
     cpu.execute()
 
-    assert cpu.zero_flag == True
-    assert cpu.less_flag == False
-    assert cpu.greater_flag == False
+    assert cpu.zero_flag is True
+    assert cpu.less_flag is False
+    assert cpu.greater_flag is False
