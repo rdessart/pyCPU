@@ -5,7 +5,8 @@ class CPU:
     def __init__(self, register_count: int = 10, bits = 8, memory_size = 256):
         self.registers = {f"R{i}": Register(f"R{i}", bits=bits) for i in range(register_count)}
         self.memory = Memory(size=memory_size, bits=bits)
-        self.pc = 0
+        self.pc = 0 #program counter
+        self.sp = self.memory.size #stack pointer
 
         self.zero_flag = False
         self.greater_flag = False
@@ -66,10 +67,6 @@ class CPU:
         self.execute_op(op, *args)
         return True
 
-    def halt(self):
-        """Set CPU State to halted"""
-        self.halted = True
-
     def reset(self):
         """reset CPU state, register"""
         self.pc = 0
@@ -85,51 +82,57 @@ class CPU:
         """execute one single operation"""
         match op.upper():
             case "MOV":
-                self.mov(*args)
+                self._mov(*args)
 
             case "JUMP":
-                self.jump(*args)
+                self._jump(*args)
 
             case "CMP":
-                self.cmp(*args)
+                self._cmp(*args)
 
             case "JG":
-                self.jg(*args)
+                self._jg(*args)
 
             case "JL":
-                self.jl(*args)
+                self._jl(*args)
 
             case "JE":
-                self.je(*args)
+                self._je(*args)
 
             case "ADD":
-                self.add(*args)
+                self._add(*args)
 
             case "SUB":
-                self.sub(*args)
+                self._sub(*args)
 
             case "MUL":
-                self.mul(*args)
+                self._mul(*args)
             
             case "DIV":
-                self.div(*args)
+                self._div(*args)
 
             case "NOP":
                 pass
 
             case "HALT":
-                self.halt()
+                self._halt()
 
             case "LOAD":
-                self.load(*args)
+                self._load(*args)
 
             case "STORE":
-                self.store(*args)
+                self._store(*args)
+
+            case "PUSH":
+                self._push(*args)
+
+            case "POP":
+                self._pop(*args)
 
             case _:
                 raise ValueError(f"Unknown instruction: {op}")
 
-    def cmp(self, left: Register, right):
+    def _cmp(self, left: Register, right):
         """compare left and right"""
         right_value = right.get() if isinstance(right, Register) else int(right)
         result = left.get() - right_value
@@ -137,61 +140,79 @@ class CPU:
         self.greater_flag = result > 0
         self.less_flag = result < 0
 
-    def mov(self, destination: Register, source):
+    def _mov(self, destination: Register, source):
         """move source into destination"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.set(value)
 
-    def add(self, destination: Register, source):
+    def _add(self, destination: Register, source):
         """add destination by source"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.add(value)
 
-    def sub(self, destination: Register, source):
+    def _sub(self, destination: Register, source):
         """substract destination by source"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.sub(value)
 
-    def mul(self, destination: Register, source):
+    def _mul(self, destination: Register, source):
         """multiply destination by source"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.mul(value)
 
-    def div(self, destination: Register, source):
+    def _div(self, destination: Register, source):
         """divide destination by source"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.div(value)
 
-    def jump(self, address: int):
+    def _jump(self, address: int):
         """Jump to address"""
         if not 0 <= address < len(self.program):
             raise ValueError(f"Invalid jump address: {address}")
         self.pc = address
 
-    def jg(self, address: int):
+    def _jg(self, address: int):
         """Jump if greater to address"""
         if self.greater_flag:
-            self.jump(address)
+            self._jump(address)
 
-    def je(self, address: int):
+    def _je(self, address: int):
             """Jump if equal to address"""
             if self.zero_flag:
-                self.jump(address)
+                self._jump(address)
 
-    def jl(self, address: int):
+    def _jl(self, address: int):
         """Jump if less to address"""
         if self.less_flag:
-            self.jump(address)
+            self._jump(address)
     
-    def store(self, memory_address: int, source: Register):
+    def _store(self, memory_address: int, source: Register):
         """Store register into RAM"""
         if isinstance(memory_address, Register):
             memory_address = memory_address.get()
         self.memory.write(memory_address, source.get())
 
-    def load(self,destination: Register, memory_address: int):
+    def _load(self,destination: Register, memory_address: int):
         """Load RAM value into register"""
         if isinstance(memory_address, Register):
             memory_address = memory_address.get()
         val = self.memory.read(memory_address)
         destination.set(val)
+
+    def _halt(self):
+        """Set CPU State to halted"""
+        self.halted = True
+
+    def _push(self, source: Register):
+        if isinstance(source, Register):
+            value = source.get()
+        self.sp -= 1
+        self.memory.write(self.sp, value)
+
+    def _pop(self, destination: Register):
+        if not isinstance(destination, Register):
+            raise ValueError("POP should reference a register")
+        value: int = self.memory.read(self.sp)
+        self.sp += 1
+        destination.set(value)
+
