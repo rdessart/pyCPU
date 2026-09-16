@@ -16,7 +16,7 @@ def test_write_to_invalid_memory_too_large():
 
 def test_write_to_invalid_memory_too_low():
     mem = Memory(bits=8, size=2)
-    with pytest.raises(ValueError, match="Address should be > 0"):
+    with pytest.raises(ValueError, match="Address should be >= 0"):
         mem.write(address=-1, value=0xFF)
     assert mem.data[0] == -1
     assert mem.data[1] == -1
@@ -33,7 +33,7 @@ def test_read_to_invalid_memory_too_large():
 
 def test_read_to_invalid_memory_too_low():
     mem = Memory(bits=8, size=2)
-    with pytest.raises(ValueError, match="Address should be > 0"):
+    with pytest.raises(ValueError, match="Address should be >= 0"):
         mem.read(address=-1)
 
 def test_read_to_uninitialized():

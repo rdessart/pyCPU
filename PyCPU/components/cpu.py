@@ -189,7 +189,7 @@ class CPU:
         self.memory.write(memory_address, source.get())
 
     def load(self,destination: Register, memory_address: int):
-        """Load register into RAM"""
+        """Load RAM value into register"""
         if isinstance(memory_address, Register):
             memory_address = memory_address.get()
         val = self.memory.read(memory_address)
