@@ -1,8 +1,9 @@
 from PyCPU.components.cpu import CPU
-
+from PyCPU.program.compiler import Compiler
 
 if __name__ == "__main__":
     cpu = CPU(2)
+    compiler = Compiler()
 
     program = [
         ("MOV", "R0", 10),    # 0
@@ -12,8 +13,9 @@ if __name__ == "__main__":
         ("CMP", "R0", 0),     # 3
         ("JG", "LOOP"),       # 4
     ]
-
-    cpu.load_program(program)
+    compiler.load_program(program)
+    executable = compiler.compiled_program
+    cpu.load_program(executable)
     while cpu.step():
         print(cpu)
 
