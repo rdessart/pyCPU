@@ -3,11 +3,10 @@ class Assembler:
     def __init__(self):
         self.labels: dict[str, int] = {}
 
-    def load_program(self, source_code: list[tuple]) -> list[tuple]:
+    def assemble(self, source_code: list[tuple]) -> list[tuple]:
         """ Load a parse a program to return full assembly code"""
         self.labels.clear()
-        self.compiled_program.clear()
-
+        program = []
         address = 0
         for instruction in source_code:
             if instruction[0].upper() == "LABEL":
@@ -18,11 +17,11 @@ class Assembler:
                     raise ValueError(f"Duplicate label : {label}")
                 self.labels[label] = address
                 continue
-            self.compiled_program.append(instruction)
+            program.append(instruction)
             address += 1
         #second pass:
         executable = []
-        for instruction in self.compiled_program:
+        for instruction in program:
             op = instruction[0].upper()
             args = list(instruction[1:])
             if op in ("JUMP", "JG", "JL", "JE"):
@@ -34,4 +33,4 @@ class Assembler:
                         raise ValueError(f"Unknown label: {target}")
                     args[0] = self.labels[target]
             executable.append((op, *args))
-        return self.executable
+        return executable
