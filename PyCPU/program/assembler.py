@@ -1,5 +1,5 @@
 
-class Compiler:
+class Assembler:
     def __init__(self):
         self.labels: dict[str, int] = {}
 
