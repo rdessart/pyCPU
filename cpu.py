@@ -30,6 +30,7 @@ class CPU:
 
     def load_program(self, program: list[tuple]):
         self.program = program
+        self.pc = 0
 
     def resolve_operand(self, operand):
         if isinstance(operand, str) and operand.startswith("R"):
