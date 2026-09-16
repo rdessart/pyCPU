@@ -40,3 +40,8 @@ def test_read_to_uninitialized():
     mem = Memory(bits=8, size=2)
     with pytest.raises(ValueError, match="Trying to access un-initalized memory at 0"):
         mem.read(address=0)
+
+def test_memory_overflow_wraps():
+    mem = Memory(bits=8, size=2)
+    mem.write(0, 256)
+    assert mem.read(0) == 0
