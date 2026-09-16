@@ -5,7 +5,6 @@ class Assembler:
 
     def load_program(self, source_code: list[tuple]) -> list[tuple]:
         """ Load a parse a program to return full assembly code"""
-        pc = 0
         self.labels.clear()
         self.compiled_program.clear()
 
