@@ -20,7 +20,7 @@ class Memory:
 
     def write(self, address: int, value: int):
         self._validate_address(address)
-        self.data[address] = value
+        self.data[address] = value & self.mask
 
     def _validate_address(self, address: int):
         if address < 0:
