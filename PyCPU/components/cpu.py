@@ -116,6 +116,9 @@ class CPU:
             case "NOP":
                 pass
 
+            case "HALT":
+                self.halt()
+
             case "LOAD":
                 self.load(*args)
 
@@ -180,10 +183,10 @@ class CPU:
             self.jump(address)
     
     def store(self, memory_address: int, source: Register):
-        """Load register into RAM"""
+        """Store register into RAM"""
         self.memory.write(memory_address, source.get())
 
     def load(self,destination: Register, memory_address: int):
-            """Load register into RAM"""
-            val = self.memory.read(memory_address)
-            destination.set(val)
+        """Load register into RAM"""
+        val = self.memory.read(memory_address)
+        destination.set(val)
