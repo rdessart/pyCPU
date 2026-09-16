@@ -5,7 +5,6 @@ class CPU:
         self.registers = {f"R{i}": Register(f"R{i}") for i in range(register_count)}
         self.pc = 0
 
-
         self.zero_flag = False
         self.greater_flag = False
         self.less_flag = False
@@ -31,15 +30,12 @@ class CPU:
 
     # Biggest change: we pass from an interpreter mode to a full compilation
     # mode as we need to pass at least one to check for labels in the code
-    def load_program(self, source_code: list[tuple]):
+    def load_program(self, excutable: list[tuple]):
         #reset:
         self.pc = 0
-        self.labels.clear()
         self.program.clear()
-
         #first pass:
-       
-        self.program = resolved_program
+        self.program = excutable
 
     def resolve_operand(self, operand):
         if isinstance(operand, str) and operand.startswith("R"):
