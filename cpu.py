@@ -14,9 +14,9 @@ class CPU:
     def __repr__(self):
         out_str = f"CPU INFO:\n\t*PROGRAM LENGTH: {len(self.program)}\n\t*PC: {self.pc}"
         if len(self.program) > 0 and self.pc < len(self.program):
-            out_str += f" - 0P: {self.program[self.pc]}"
+            out_str += f" - OP: {self.program[self.pc]}"
         elif len(self.program) > 0 and self.pc >= len(self.program):
-            out_str += " - OP: HALT"
+            out_str += " - OP: END"
         else:
             out_str += " - OP: N/A"
         out_str += f"\n\t*ZF: {self.zero_flag}\n\t"
