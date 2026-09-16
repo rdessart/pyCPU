@@ -9,6 +9,7 @@ class CPU:
         self.greater_flag = False
         self.less_flag = False
         self.program = []
+        self.halted = False
 
     def __repr__(self):
         out_str = f"CPU INFO:\n\t*PROGRAM LENGTH: {len(self.program)}\n\t*PC: {self.pc}"
@@ -28,27 +29,31 @@ class CPU:
         return out_str
     
     def load_program(self, excutable: list[tuple]):
-        #reset:
+        """Reset execution pointer and load an executable"""
         self.pc = 0
         self.program = list(excutable)
 
     def resolve_operand(self, operand):
+        """resolve operand"""
         if isinstance(operand, str) and operand.startswith("R"):
             return self.find_register(operand)
         return operand
 
     def find_register(self, name: str) -> Register:
+        """Try to find matching register"""
         try:
             return self.registers[name]
         except KeyError:
             raise ValueError(f"Unknown register: {name}")
 
     def execute(self):
+        """execute program loaded"""
         while self.step():
             pass
 
     def step(self) -> bool:
-        if self.pc >= len(self.program):
+        """move one step into program execution"""
+        if self.pc >= len(self.program) or self.halted:
             return False
         #To be use if switching to an UI to allow set by set executions
         instruction = self.program[self.pc]
@@ -58,7 +63,19 @@ class CPU:
         self.execute_op(op, *args)
         return True
 
+    def reset(self):
+        """reset CPU state, register"""
+        self.pc = 0
+        self.zero_flag = False
+        self.less_flag = False
+        self.greater_flag = False
+        self.halted = False
+
+        for register in self.registers.values():
+            register.set(0)
+
     def execute_op(self, op: str, *args):
+        """execute one single operation"""
         match op.upper():
             case "MOV":
                 self.mov(*args)
@@ -97,45 +114,59 @@ class CPU:
                 raise ValueError(f"Unknown instruction: {op}")
 
     def cmp(self, left: Register, right):
-            right_value = right.get() if isinstance(right, Register) else int(right)
-            result = left.get() - right_value
-            self.zero_flag = result == 0
-            self.greater_flag = result > 0
-            self.less_flag = result < 0
+        """compare left and right"""
+        right_value = right.get() if isinstance(right, Register) else int(right)
+        result = left.get() - right_value
+        self.zero_flag = result == 0
+        self.greater_flag = result > 0
+        self.less_flag = result < 0
 
     def mov(self, destination: Register, source):
+        """move source into destination"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.set(value)
 
     def add(self, destination: Register, source):
+        """add destination by source"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.add(value)
 
     def sub(self, destination: Register, source):
+        """substract destination by source"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.sub(value)
 
     def mul(self, destination: Register, source):
-            value = source.get() if isinstance(source, Register) else int(source)
-            destination.mul(value)
+        """multiply destination by source"""
+        value = source.get() if isinstance(source, Register) else int(source)
+        destination.mul(value)
 
     def div(self, destination: Register, source):
+        """divide destination by source"""
         value = source.get() if isinstance(source, Register) else int(source)
         destination.div(value)
 
     def jump(self, address: int):
+        """Jump to address"""
         if not 0 <= address < len(self.program):
             raise ValueError(f"Invalid jump address: {address}")
         self.pc = address
 
     def jg(self, address: int):
+        """Jump if greater to address"""
         if self.greater_flag:
             self.jump(address)
 
     def je(self, address: int):
+            """Jump if equal to address"""
             if self.zero_flag:
                 self.jump(address)
 
     def jl(self, address: int):
+        """Jump if less to address"""
         if self.less_flag:
             self.jump(address)
+
+    def halt(self):
+        """Set CPU State to halted"""
+        self.halted = True
