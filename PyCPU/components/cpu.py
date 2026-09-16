@@ -1,8 +1,8 @@
 from .register import Register 
 
 class CPU: 
-    def __init__(self, register_count: int = 10):
-        self.registers = {f"R{i}": Register(f"R{i}") for i in range(register_count)}
+    def __init__(self, register_count: int = 10, bits = 8):
+        self.registers = {f"R{i}": Register(f"R{i}", bits=bits) for i in range(register_count)}
         self.pc = 0
 
         self.zero_flag = False
