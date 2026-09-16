@@ -244,3 +244,36 @@ def test_cpu_load():
     cpu.execute()
 
     assert cpu.registers["R0"].get() == 42
+
+def test_halt_instruction_stops_execution():
+    cpu = CPU(1)
+
+    cpu.load_program([
+        ("MOV", "R0", 10),
+        ("HALT",),
+        ("MOV", "R0", 99),
+    ])
+
+    cpu.execute()
+
+    assert cpu.halted is True
+    assert cpu.registers["R0"].get() == 10
+    assert cpu.pc == 2
+
+def test_loading_program_clears_halt():
+    cpu = CPU(1)
+
+    cpu.load_program([
+        ("HALT",),
+    ])
+    cpu.execute()
+
+    assert cpu.halted is True
+
+    cpu.load_program([
+        ("MOV", "R0", 42),
+    ])
+    cpu.execute()
+
+    assert cpu.halted is False
+    assert cpu.registers["R0"].get() == 42

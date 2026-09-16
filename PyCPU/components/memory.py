@@ -24,7 +24,7 @@ class Memory:
 
     def _validate_address(self, address: int):
         if address < 0:
-            raise ValueError("Address should be > 0")
+            raise ValueError("Address should be >= 0")
         if address >= self.size:
             raise ValueError(f"Address should be less than {self.size}")
         

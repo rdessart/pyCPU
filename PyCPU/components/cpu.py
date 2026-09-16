@@ -34,6 +34,7 @@ class CPU:
         """Reset execution pointer and load an executable"""
         self.pc = 0
         self.program = list(excutable)
+        self.halted = False
 
     def resolve_operand(self, operand):
         """resolve operand"""
@@ -184,9 +185,13 @@ class CPU:
     
     def store(self, memory_address: int, source: Register):
         """Store register into RAM"""
+        if isinstance(memory_address, Register):
+            memory_address = memory_address.get()
         self.memory.write(memory_address, source.get())
 
     def load(self,destination: Register, memory_address: int):
-        """Load register into RAM"""
+        """Load RAM value into register"""
+        if isinstance(memory_address, Register):
+            memory_address = memory_address.get()
         val = self.memory.read(memory_address)
         destination.set(val)
