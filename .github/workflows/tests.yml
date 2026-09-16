@@ -2,7 +2,12 @@ name: Python tests
 
 on:
   push:
+    branch:
+      - master
   pull_request:
+      branch:
+        - master
+        - develop
   workflow_dispatch:
 
 jobs:
