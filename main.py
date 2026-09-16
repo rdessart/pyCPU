@@ -1,4 +1,4 @@
-from cpu import CPU
+from PyCPU.components.cpu import CPU
 
 
 if __name__ == "__main__":

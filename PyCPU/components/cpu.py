@@ -1,4 +1,4 @@
-from register import Register 
+from .register import Register 
 
 class CPU: 
     def __init__(self, register_count: int = 10):
