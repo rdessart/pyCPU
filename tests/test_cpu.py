@@ -219,3 +219,28 @@ def test_reset():
 
     for reg in cpu.registers.values():
         assert reg.get() == 0
+
+def test_cpu_store():
+    cpu = CPU(1)
+
+    cpu.load_program([
+        ("MOV", "R0", 42),
+        ("STORE", 10, "R0"),
+    ])
+
+    cpu.execute()
+
+    assert cpu.memory.read(10) == 42
+
+def test_cpu_load():
+    cpu = CPU(1)
+
+    cpu.memory.write(10, 42)
+
+    cpu.load_program([
+        ("LOAD", "R0", 10),
+    ])
+
+    cpu.execute()
+
+    assert cpu.registers["R0"].get() == 42
