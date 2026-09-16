@@ -8,17 +8,22 @@ class CPU:
         self.zero_flag = False
         self.greater_flag = False
         self.less_flag = False
-        self.equal_flag = False
 
         self.program = []
 
-    def cmp(self, left: Register, right):
-        right_value = right.get() if isinstance(right, Register) else int(right)
-        result = left.get() - right_value
-        self.zero_flag = result == 0
-        self.greater_flag = result > 0
-        self.less_flag = result < 0
-        self.equal_flag = left == right_value
+    def __repr__(self):
+        out_str = f"CPU INFO:\n\t*PROGRAM LENGTH: {len(self.program)}\n\t*PC: {self.pc}"
+        out_str += f"\n\t*ZF: {self.zero_flag}\n\t"
+        out_str += f"*GF: {self.greater_flag}\n\t"
+        out_str += f"*LF: {self.less_flag}"
+        out_str += f"\n\t*REGISTERS: {len(self.registers)}"
+        for r in self.registers.values():
+            out_str += f"\n\t\t*{r.id} - {r.value} = 0x{r.value:X}"
+
+        return out_str
+
+    def load_program(self, program: list[tuple]):
+        self.program = program
 
     def resolve_operand(self, operand):
         if isinstance(operand, str) and operand.startswith("R"):
@@ -31,18 +36,20 @@ class CPU:
         except KeyError:
             raise ValueError(f"Unknown register: {name}")
 
-    def execute(self, program):
-        self.program = program
-        while self.pc < len(self.program):
-            self.execute_instruction()
+    def execute(self):
+        while self.step():
+            pass
 
-    def execute_instruction(self):
+    def step(self) -> bool:
+        if self.pc >= len(self.program):
+            return False
         #To be use if switching to an UI to allow set by set executions
         instruction = self.program[self.pc]
         self.pc += 1
         op = instruction[0]
         args = [self.resolve_operand(args) for args in instruction[1:]]
         self.execute_op(op, *args)
+        return True
 
     def execute_op(self, op: str, *args):
         match op.upper():
@@ -82,6 +89,13 @@ class CPU:
             case _:
                 raise ValueError(f"Unknown instruction: {op}")
 
+    def cmp(self, left: Register, right):
+            right_value = right.get() if isinstance(right, Register) else int(right)
+            result = left.get() - right_value
+            self.zero_flag = result == 0
+            self.greater_flag = result > 0
+            self.less_flag = result < 0
+
     def mov(self, destination: Register, source):
         value = source.get() if isinstance(source, Register) else int(source)
         destination.set(value)
@@ -103,16 +117,18 @@ class CPU:
         destination.div(value)
 
     def jump(self, address: int):
+        if not 0 <= address < len(self.program):
+            raise ValueError(f"Invalid jump address: {address}")
         self.pc = address
 
     def jg(self, address: int):
         if self.greater_flag:
             self.jump(address)
 
+    def je(self, address: int):
+            if self.zero_flag:
+                self.jump(address)
+
     def jl(self, address: int):
         if self.less_flag:
-            self.jump(address)
-
-    def je(self, address: int):
-        if self.equal_flag:
             self.jump(address)

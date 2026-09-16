@@ -2,7 +2,7 @@ from cpu import CPU
 
 
 if __name__ == "__main__":
-    cpu = CPU()
+    cpu = CPU(2)
 
     program = [
         ("MOV", "R0", 10),    # 0
@@ -12,6 +12,7 @@ if __name__ == "__main__":
         ("CMP", "R0", 0),     # 3
         ("JG", 2),             # 4
     ]
-
-    cpu.execute(program)
+    cpu.load_program(program)
+    while cpu.step():
+        print(cpu)
 
