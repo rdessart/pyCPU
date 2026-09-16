@@ -13,7 +13,7 @@ if __name__ == "__main__":
         ("CMP", "R0", 0),     # 3
         ("JG", "LOOP"),       # 4
     ]
-    executable = assembler.load_program(program)
+    executable = assembler.assemble(program)
     cpu.load_program(executable)
     while cpu.step():
         print(cpu)
