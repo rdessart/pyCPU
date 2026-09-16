@@ -1,8 +1,10 @@
 from .register import Register 
+from .memory import Memory
 
 class CPU: 
-    def __init__(self, register_count: int = 10, bits = 8):
+    def __init__(self, register_count: int = 10, bits = 8, memory_size = 256):
         self.registers = {f"R{i}": Register(f"R{i}", bits=bits) for i in range(register_count)}
+        self.memory = Memory(size=memory_size, bits=bits)
         self.pc = 0
 
         self.zero_flag = False
@@ -63,6 +65,10 @@ class CPU:
         self.execute_op(op, *args)
         return True
 
+    def halt(self):
+        """Set CPU State to halted"""
+        self.halted = True
+
     def reset(self):
         """reset CPU state, register"""
         self.pc = 0
@@ -109,6 +115,12 @@ class CPU:
 
             case "NOP":
                 pass
+
+            case "LOAD":
+                self.load(*args)
+
+            case "STORE":
+                self.store(*args)
 
             case _:
                 raise ValueError(f"Unknown instruction: {op}")
@@ -166,7 +178,12 @@ class CPU:
         """Jump if less to address"""
         if self.less_flag:
             self.jump(address)
+    
+    def store(self, memory_address: int, source: Register):
+        """Load register into RAM"""
+        self.memory.write(memory_address, source.get())
 
-    def halt(self):
-        """Set CPU State to halted"""
-        self.halted = True
+    def load(self,destination: Register, memory_address: int):
+            """Load register into RAM"""
+            val = self.memory.read(memory_address)
+            destination.set(val)
