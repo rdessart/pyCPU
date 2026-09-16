@@ -1,4 +1,4 @@
-from register import Register 
+from .register import Register 
 
 class CPU: 
     def __init__(self, register_count: int = 10):
@@ -8,7 +8,6 @@ class CPU:
         self.zero_flag = False
         self.greater_flag = False
         self.less_flag = False
-
         self.program = []
 
     def __repr__(self):
@@ -27,10 +26,11 @@ class CPU:
             out_str += f"\n\t\t*{r.id} - {r.value} = 0x{r.value:X}"
 
         return out_str
-
-    def load_program(self, program: list[tuple]):
-        self.program = program
+    
+    def load_program(self, excutable: list[tuple]):
+        #reset:
         self.pc = 0
+        self.program = list(excutable)
 
     def resolve_operand(self, operand):
         if isinstance(operand, str) and operand.startswith("R"):
