@@ -164,3 +164,58 @@ def test_invalid_jump_raises():
 
     with pytest.raises(ValueError, match="Invalid jump address"):
         cpu.execute()
+
+
+def test_unassemble_program():
+    cpu = CPU(2)
+   
+    cpu.load_program([
+        ("MOV", "R0", 0),
+        ("MOV", "R1", 0),
+
+        ("LABEL", "LOOP"),
+        ("ADD", "R0", 1),
+        ("CMP", "R0", 10),
+        ("JL", "LOOP")
+    ])
+
+    with pytest.raises(ValueError, match="Unknown instruction: LABEL"):
+        cpu.execute()
+
+def test_halting():
+    cpu = CPU(2)
+
+    cpu.load_program([
+        ("MOV", "R0", 0),
+        ("MOV", "R1", 0),
+        ("ADD", "R0", 1),
+        ("ADD", "R1", 5),
+        ("CMP", "R0", 10),
+        ("JL", 2)
+    ])
+    for i in range(10):
+        assert cpu.step() == True
+    cpu.halt()
+    assert cpu.step() == False
+
+def test_reset():
+    cpu = CPU(2)
+
+    cpu.load_program([
+        ("MOV", "R0", 0),
+        ("MOV", "R1", 0),
+        ("ADD", "R0", 1),
+        ("ADD", "R1", 5),
+        ("CMP", "R0", 10),
+        ("JL", 2)
+    ])
+    for i in range(10):
+        assert cpu.step() == True
+    cpu.reset()
+    assert cpu.pc == 0
+    assert cpu.zero_flag is False
+    assert cpu.less_flag is False
+    assert cpu.greater_flag is False
+
+    for reg in cpu.registers.values():
+        assert reg.get() == 0
