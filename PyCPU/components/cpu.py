@@ -26,10 +26,7 @@ class CPU:
             out_str += f"\n\t\t*{r.id} - {r.value} = 0x{r.value:X}"
 
         return out_str
-
-
-    # Biggest change: we pass from an interpreter mode to a full compilation
-    # mode as we need to pass at least one to check for labels in the code
+    
     def load_program(self, excutable: list[tuple]):
         #reset:
         self.pc = 0
