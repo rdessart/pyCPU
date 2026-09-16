@@ -34,6 +34,7 @@ class CPU:
         """Reset execution pointer and load an executable"""
         self.pc = 0
         self.program = list(excutable)
+        self.halted = False
 
     def resolve_operand(self, operand):
         """resolve operand"""
