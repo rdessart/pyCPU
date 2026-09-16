@@ -4,11 +4,11 @@ class CPU:
     def __init__(self, register_count: int = 10):
         self.registers = {f"R{i}": Register(f"R{i}") for i in range(register_count)}
         self.pc = 0
+        self.labels: dict[str, int] = {}
 
         self.zero_flag = False
         self.greater_flag = False
         self.less_flag = False
-
         self.program = []
 
     def __repr__(self):
@@ -28,9 +28,43 @@ class CPU:
 
         return out_str
 
-    def load_program(self, program: list[tuple]):
-        self.program = program
+
+    # Biggest change: we pass from an interpreter mode to a full compilation
+    # mode as we need to pass at least one to check for labels in the code
+    def load_program(self, source_code: list[tuple]):
+        #reset:
         self.pc = 0
+        self.labels.clear()
+        self.program.clear()
+
+        #first pass:
+        address = 0
+        for instruction in source_code:
+            if instruction[0].upper() == "LABEL":
+                if len(instruction) != 2:
+                    raise ValueError("LABEL expects exactly one argument")
+                label = instruction[1]
+                if label in self.labels:
+                    raise ValueError(f"Duplicate label : {label}")
+                self.labels[label] = address
+                continue
+            self.program.append(instruction)
+            address += 1
+        #second pass:
+        resolved_program = []
+        for instruction in self.program:
+            op = instruction[0].upper()
+            args = list(instruction[1:])
+            if op in ("JUMP", "JG", "JL", "JE"):
+                if len(args) != 1:
+                    raise ValueError(f"{op} expects one argument")
+                target = args[0]
+                if isinstance(target, str):
+                    if target not in self.labels:
+                        raise ValueError(f"Unknown label: {target}")
+                    args[0] = self.labels[target]
+            resolved_program.append((op, *args))
+        self.program = resolved_program
 
     def resolve_operand(self, operand):
         if isinstance(operand, str) and operand.startswith("R"):

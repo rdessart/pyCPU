@@ -7,11 +7,12 @@ if __name__ == "__main__":
     program = [
         ("MOV", "R0", 10),    # 0
         ("MOV", "R1", 1),     # 1
-
+        ("LABEL", "LOOP"),
         ("SUB", "R0", "R1"),  # 2
         ("CMP", "R0", 0),     # 3
-        ("JG", 2),             # 4
+        ("JG", "LOOP"),       # 4
     ]
+
     cpu.load_program(program)
     while cpu.step():
         print(cpu)
