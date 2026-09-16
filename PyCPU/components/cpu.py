@@ -184,9 +184,13 @@ class CPU:
     
     def store(self, memory_address: int, source: Register):
         """Store register into RAM"""
+        if isinstance(memory_address, Register):
+            memory_address = memory_address.get()
         self.memory.write(memory_address, source.get())
 
     def load(self,destination: Register, memory_address: int):
         """Load register into RAM"""
+        if isinstance(memory_address, Register):
+            memory_address = memory_address.get()
         val = self.memory.read(memory_address)
         destination.set(val)
