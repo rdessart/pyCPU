@@ -1,7 +1,7 @@
 from PyCPU.program.assembler import Assembler
 import pytest
 
-def test_compile_program_without_labels():
+def test_assemble_program_without_labels():
     assembler = Assembler()
 
     source = [
@@ -9,7 +9,7 @@ def test_compile_program_without_labels():
         ("ADD", "R0", 1),
     ]
 
-    result = assembler.compile(source)
+    result = assembler.assemble(source)
 
     assert result == [
         ("MOV", "R0", 10),
@@ -27,7 +27,7 @@ def test_backward_label():
         ("JG", "LOOP"),
     ]
 
-    result = assembler.compile(source)
+    result = assembler.assemble(source)
 
     assert result == [
         ("MOV", "R0", 10),
@@ -37,7 +37,7 @@ def test_backward_label():
     ]
 
 def test_forward_label():
-    assembler = assembler()
+    assembler = Assembler()
 
     source = [
         ("JUMP", "START"),
@@ -46,7 +46,7 @@ def test_forward_label():
         ("MOV", "R0", 42),
     ]
 
-    result = assembler.compile(source)
+    result = assembler.assemble(source)
 
     assert result == [
         ("JUMP", 2),
@@ -70,7 +70,7 @@ def test_multiple_labels():
         ("NOP",),
     ]
 
-    result = assembler.compile(source)
+    result = assembler.assemble(source)
 
     assert result == [
         ("MOV", "R0", 10),
@@ -96,7 +96,7 @@ def test_duplicate_label_raises():
     ]
 
     with pytest.raises(ValueError, match="Duplicate label"):
-        assembler.compile(source)
+        assembler.assemble(source)
 
 def test_unknown_label_raises():
     assembler = Assembler()
@@ -107,7 +107,8 @@ def test_unknown_label_raises():
     ]
 
     with pytest.raises(ValueError, match="Unknown label"):
-        assembler.compile(source)
+        assembler.assemble(source)
+
 
 def test_label_without_name_raises():
     assembler = Assembler()
@@ -117,17 +118,7 @@ def test_label_without_name_raises():
     ]
 
     with pytest.raises(ValueError, match="LABEL expects exactly one argument"):
-        assembler.compile(source)
-
-def test_label_without_name_raises():
-    assembler = Assembler()
-
-    source = [
-        ("LABEL",),
-    ]
-
-    with pytest.raises(ValueError, match="LABEL expects exactly one argument"):
-        assembler.compile(source)
+        assembler.assemble(source)
 
 def test_numeric_jump_is_not_modified():
     assembler = Assembler()
@@ -137,9 +128,68 @@ def test_numeric_jump_is_not_modified():
         ("JUMP", 0),
     ]
 
-    result = assembler.compile(source)
+    result = assembler.assemble(source)
 
     assert result == [
         ("MOV", "R0", 10),
         ("JUMP", 0),
+    ]
+
+def test_compile_resets_labels_between_programs():
+    assembler = Assembler()
+
+    assembler.assemble([
+        ("LABEL", "FIRST"),
+        ("NOP",),
+    ])
+
+    assert "FIRST" in assembler.labels
+
+    assembler.assemble([
+        ("LABEL", "SECOND"),
+        ("NOP",),
+    ])
+
+    assert "FIRST" not in assembler.labels
+    assert "SECOND" in assembler.labels
+
+def test_consecutive_labels_point_to_same_instruction():
+    assembler = Assembler()
+
+    source = [
+        ("LABEL", "START"),
+        ("LABEL", "ENTRY"),
+        ("MOV", "R0", 42),
+        ("JUMP", "START"),
+    ]
+
+    result = assembler.assemble(source)
+
+    assert assembler.labels["START"] == 0
+    assert assembler.labels["ENTRY"] == 0
+
+    assert result == [
+        ("MOV", "R0", 42),
+        ("JUMP", 0),
+    ]
+
+@pytest.mark.parametrize(
+    "opcode",
+    ["JUMP", "JG", "JL", "JE"]
+)
+
+def test_all_jump_instructions_resolve_labels(opcode):
+    assembler = Assembler()
+
+    source = [
+        ("LABEL", "TARGET"),
+        ("NOP",),
+        (opcode, "TARGET"),
+    ]
+
+    result = assembler.assemble(source)
+
+    assert result == [
+        ("NOP",),
+        (opcode, 0),
     ]
