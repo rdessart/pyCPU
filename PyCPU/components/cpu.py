@@ -70,6 +70,7 @@ class CPU:
     def reset(self):
         """reset CPU state, register"""
         self.pc = 0
+        self.sp = self.memory.size
         self.zero_flag = False
         self.less_flag = False
         self.greater_flag = False
