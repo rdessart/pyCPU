@@ -201,7 +201,7 @@ class CPU:
     def _load(self, destination: Register, memory_address: Register):
         """Load RAM value into register"""
         if not isinstance(memory_address, Register):
-            raise ValueError("STORE memory_address should reference a register")
+            raise ValueError("LOAD memory_address should reference a register")
         if not isinstance(destination, Register):
                 raise ValueError("LOAD destination should reference a register")
         val = self.memory.read(memory_address.get())
