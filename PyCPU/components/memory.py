@@ -1,5 +1,3 @@
-from .register import Register
-
 class Memory:
     """Represent memory"""
     def __init__(self, size:int = 256, bits: int = 8):
@@ -14,31 +12,19 @@ class Memory:
             out_str += f"[{i}] = {data}\n"
         return out_str
 
-    def resolve_memory_address(self, address: Register) -> int:
-        if not isinstance(address, Register):
-            raise ValueError("memory address should be a pointer!")
-        memory_address = address.get()
-        self._validate_address(memory_address)
-        return memory_address
+    def resolve_memory_address(self, address: int) -> int:
+        self._validate_address(address)
+        return address
 
-    def read(self, memory_address: Register) -> int:
+    def read(self, memory_address: int) -> int:
         address = self.resolve_memory_address(memory_address)
         if self.data[address] < 0:
             raise ValueError(f"Trying to access un-initalized memory at {address}")
         return self.data[address]
 
-    def write(self, memory_address: Register, value: int):
+    def write(self, memory_address: int, value: int):
         address = self.resolve_memory_address(memory_address)
         self.data[address] = value & self.mask
-
-    def write_sp(self, sp: int, value: int):
-        self._validate_address(sp)
-        self.data[sp] = value
-
-    def read_sp(self, sp: int) -> int:
-        self._validate_address(sp)
-        return self.data[sp]    
-    
 
     def _validate_address(self, address: int):
         if address < 0:

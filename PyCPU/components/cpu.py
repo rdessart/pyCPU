@@ -188,11 +188,19 @@ class CPU:
     
     def _store(self, memory_address: Register, source: Register):
         """Store register into RAM"""
-        self.memory.write(memory_address, source.get())
+        if not isinstance(memory_address, Register):
+            raise ValueError("STORE memory_address should reference a register")
+        if not isinstance(source, Register):
+            raise ValueError("STORE source should reference a register")
+        self.memory.write(memory_address.get(), source.get())
 
-    def _load(self,destination: Register, memory_address: Register):
+    def _load(self, destination: Register, memory_address: Register):
         """Load RAM value into register"""
-        val = self.memory.read(memory_address)
+        if not isinstance(memory_address, Register):
+            raise ValueError("STORE memory_address should reference a register")
+        if not isinstance(destination, Register):
+                raise ValueError("LOAD destination should reference a register")
+        val = self.memory.read(memory_address.get())
         destination.set(val)
 
     def _halt(self):
@@ -200,15 +208,16 @@ class CPU:
         self.halted = True
 
     def _push(self, source: Register):
-        if isinstance(source, Register):
-            value = source.get()
+        if not isinstance(source, Register):
+            raise ValueError("PUSH should reference a register")
+        value = source.get()
         self.sp -= 1
-        self.memory.write_sp(self.sp, value)
+        self.memory.write(self.sp, value)
 
     def _pop(self, destination: Register):
         if not isinstance(destination, Register):
             raise ValueError("POP should reference a register")
-        value: int = self.memory.read_sp(self.sp)
+        value: int = self.memory.read(self.sp)
         self.sp += 1
         destination.set(value)
 
