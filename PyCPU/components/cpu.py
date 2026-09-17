@@ -79,6 +79,9 @@ class CPU:
         for register in self.registers.values():
             register.set(0)
 
+    def clear_ram(self):
+        self.memory.reset()
+
     def execute_op(self, op: str, *args):
         """execute one single operation"""
         match op.upper():
