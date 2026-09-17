@@ -203,12 +203,12 @@ class CPU:
         if isinstance(source, Register):
             value = source.get()
         self.sp -= 1
-        self.memory.write(self.sp, value)
+        self.memory.write_sp(self.sp, value)
 
     def _pop(self, destination: Register):
         if not isinstance(destination, Register):
             raise ValueError("POP should reference a register")
-        value: int = self.memory.read(self.sp)
+        value: int = self.memory.read_sp(self.sp)
         self.sp += 1
         destination.set(value)
 

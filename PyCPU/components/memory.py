@@ -31,6 +31,15 @@ class Memory:
         address = self.resolve_memory_address(memory_address)
         self.data[address] = value & self.mask
 
+    def write_sp(self, sp: int, value: int):
+        self._validate_address(sp)
+        self.data[sp] = value
+
+    def read_sp(self, sp: int) -> int:
+        self._validate_address(sp)
+        return self.data[sp]    
+    
+
     def _validate_address(self, address: int):
         if address < 0:
             raise ValueError("Address should be >= 0")
