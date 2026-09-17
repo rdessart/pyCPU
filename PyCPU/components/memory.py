@@ -31,4 +31,7 @@ class Memory:
             raise ValueError("Address should be >= 0")
         if address >= self.size:
             raise ValueError(f"Address should be less than {self.size}")
-        
+
+    def reset(self):
+        self.data = [-1] * self.size
+
