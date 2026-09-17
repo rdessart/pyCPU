@@ -214,6 +214,9 @@ class CPU:
     def _push(self, source: Register):
         if not isinstance(source, Register):
             raise ValueError("PUSH should reference a register")
+        if self.sp <= 0:
+            raise ValueError("STACK OVERFLOW !")
+        
         value = source.get()
         self.sp -= 1
         self.memory.write(self.sp, value)
@@ -221,6 +224,10 @@ class CPU:
     def _pop(self, destination: Register):
         if not isinstance(destination, Register):
             raise ValueError("POP should reference a register")
+
+        if self.sp >= self.memory.size:
+            raise ValueError("STACK UNDERFLOW !")
+        
         value: int = self.memory.read(self.sp)
         self.sp += 1
         destination.set(value)
