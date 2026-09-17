@@ -12,14 +12,18 @@ class Memory:
             out_str += f"[{i}] = {data}\n"
         return out_str
 
-    def read(self, address: int) -> int:
+    def resolve_memory_address(self, address: int) -> int:
         self._validate_address(address)
+        return address
+
+    def read(self, memory_address: int) -> int:
+        address = self.resolve_memory_address(memory_address)
         if self.data[address] < 0:
             raise ValueError(f"Trying to access un-initalized memory at {address}")
         return self.data[address]
 
-    def write(self, address: int, value: int):
-        self._validate_address(address)
+    def write(self, memory_address: int, value: int):
+        address = self.resolve_memory_address(memory_address)
         self.data[address] = value & self.mask
 
     def _validate_address(self, address: int):
@@ -27,4 +31,7 @@ class Memory:
             raise ValueError("Address should be >= 0")
         if address >= self.size:
             raise ValueError(f"Address should be less than {self.size}")
-        
+
+    def reset(self):
+        self.data = [-1] * self.size
+

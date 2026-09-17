@@ -7,20 +7,25 @@ if __name__ == "__main__":
 
     program = [
         ("MOV", "R0", 10),    # 0
-        ("MOV", "R1", 0),     # 1
-        ("MOV", "R2", 0), #address
-        ("LABEL", "LOOP"),
-        ("SUB", "R0", 1),  # 2
-        ("ADD", "R1", 5),
-        ("CMP", "R0", 0),     # 3
-        ("JG", "LOOP"),       # 4
-        ("STORE", "R2", "R1"),
+        ("MOV", "R1", 5),     # 1
+        ("MOV", "R2", 2), #address
+        ("PUSH", "R0"),
+        ("PUSH", "R1"),
+        ("PUSH", "R2"),
+        ("MOV", "R0", 0),
         ("MOV", "R1", 0),
-        ("LOAD", "R1", "R2"),
+        ("MOV", "R2", 0),
+        ("POP", "R2"),
+        ("POP", "R1"),
+        ("POP", "R0"),
     ]
     executable = assembler.assemble(program)
     cpu.load_program(executable)
     while cpu.step():
         print(cpu)
+        if(cpu.sp <= 255):
+            print(f"SP : {cpu.sp} - {cpu.memory.data[cpu.sp]:X}")
+        else:
+            print(f"SP : {cpu.sp}")
     print(cpu.memory)
 
