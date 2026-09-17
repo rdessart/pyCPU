@@ -186,16 +186,12 @@ class CPU:
         if self.less_flag:
             self._jump(address)
     
-    def _store(self, memory_address: int, source: Register):
+    def _store(self, memory_address: Register, source: Register):
         """Store register into RAM"""
-        if isinstance(memory_address, Register):
-            memory_address = memory_address.get()
         self.memory.write(memory_address, source.get())
 
-    def _load(self,destination: Register, memory_address: int):
+    def _load(self,destination: Register, memory_address: Register):
         """Load RAM value into register"""
-        if isinstance(memory_address, Register):
-            memory_address = memory_address.get()
         val = self.memory.read(memory_address)
         destination.set(val)
 
