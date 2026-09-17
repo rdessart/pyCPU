@@ -1,5 +1,4 @@
 from PyCPU.components.memory import Memory
-from PyCPU.components.register import Register
 import pytest
 
 def test_write_to_memory():
