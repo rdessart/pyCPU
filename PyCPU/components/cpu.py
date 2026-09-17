@@ -16,12 +16,10 @@ class CPU:
 
     def __repr__(self):
         out_str = f"CPU INFO:\n\t*PROGRAM LENGTH: {len(self.program)}\n\t*PC: {self.pc}"
-        if len(self.program) > 0 and self.pc < len(self.program):
-            out_str += f" - OP: {self.program[self.pc]}"
-        elif len(self.program) > 0 and self.pc >= len(self.program):
-            out_str += " - OP: END"
-        else:
-            out_str += " - OP: N/A"
+        if self.halted:
+            out_str += " - HALTED"
+        elif len(self.program) > 0 and self.pc < len(self.program):
+            out_str += f" - NEXT OP: {self.program[self.pc]}"
         out_str += f"\n\t*ZF: {self.zero_flag}\n\t"
         out_str += f"*GF: {self.greater_flag}\n\t"
         out_str += f"*LF: {self.less_flag}"
@@ -133,6 +131,12 @@ class CPU:
             case "POP":
                 self._pop(*args)
 
+            case "CALL":
+                self._call(*args)
+
+            case "RET":
+                self._ret()
+
             case _:
                 raise ValueError(f"Unknown instruction: {op}")
 
@@ -214,21 +218,32 @@ class CPU:
     def _push(self, source: Register):
         if not isinstance(source, Register):
             raise ValueError("PUSH should reference a register")
-        if self.sp <= 0:
-            raise ValueError("STACK OVERFLOW !")
-        
-        value = source.get()
-        self.sp -= 1
-        self.memory.write(self.sp, value)
+        self._stack_push(source.get())
 
     def _pop(self, destination: Register):
         if not isinstance(destination, Register):
             raise ValueError("POP should reference a register")
+        destination.set(self._stack_pop())
 
+    def _call(self, address: int):
+        self._stack_push(self.pc)
+        self._jump(address)
+
+    def _ret(self):
+        self.pc = self._stack_pop()
+
+    def _stack_push(self, value: int):
+        if self.sp <= 0:
+            raise ValueError("STACK OVERFLOW !")
+
+        self.sp -= 1
+        self.memory.write(self.sp, value)
+
+    def _stack_pop(self) -> int:
         if self.sp >= self.memory.size:
             raise ValueError("STACK UNDERFLOW !")
-        
-        value: int = self.memory.read(self.sp)
+
+        value = self.memory.read(self.sp)
         self.sp += 1
-        destination.set(value)
+        return value
 
