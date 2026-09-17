@@ -78,3 +78,20 @@ def test_reset_restores_stack_pointer():
     cpu.reset()
 
     assert cpu.sp == 8
+
+def test_call_ret():
+    cpu = CPU(1)
+
+    cpu.load_program([
+        ("MOV", "R0", 5),
+        ("CALL", 4),
+        ("HALT",),
+        ("NOP",),
+        ("ADD", "R0", "R0"),
+        ("RET",),
+    ])
+
+    cpu.execute()
+
+    assert cpu.registers["R0"].get() == 10
+    assert cpu.sp == cpu.memory.size

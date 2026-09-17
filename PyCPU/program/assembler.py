@@ -29,7 +29,7 @@ class Assembler:
         for instruction in program:
             op = instruction[0].upper()
             args = list(instruction[1:])
-            if op in ("JUMP", "JG", "JL", "JE"):
+            if op in ("JUMP", "JG", "JL", "JE", "CALL"):
                 if len(args) != 1:
                     raise ValueError(f"{op} expects one argument")
                 target = args[0]
