@@ -34,3 +34,47 @@ def test_push_decrements_sp():
 
     assert cpu.sp == 255
     assert cpu.memory.data[255] == 42
+
+def test_stack_overflow():
+    cpu = CPU(1, memory_size=2)
+
+    cpu.load_program([
+        ("MOV", "R0", 42),
+        ("PUSH", "R0"),
+        ("PUSH", "R0"),
+        ("PUSH", "R0"),
+    ])
+
+    with pytest.raises(ValueError, match="STACK OVERFLOW"):
+        cpu.execute()
+
+    assert cpu.sp == 0
+
+def test_stack_underflow():
+    cpu = CPU(1, memory_size=2)
+
+    cpu.load_program([
+        ("POP", "R0"),
+    ])
+
+    with pytest.raises(ValueError, match="STACK UNDERFLOW"):
+        cpu.execute()
+
+    assert cpu.sp == 2
+
+def test_reset_restores_stack_pointer():
+    cpu = CPU(1, memory_size=8)
+
+    cpu.load_program([
+        ("MOV", "R0", 42),
+        ("PUSH", "R0"),
+        ("PUSH", "R0"),
+    ])
+
+    cpu.execute()
+
+    assert cpu.sp == 6
+
+    cpu.reset()
+
+    assert cpu.sp == 8
