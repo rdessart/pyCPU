@@ -14,23 +14,24 @@ class Memory:
             out_str += f"[{i}] = {data}\n"
         return out_str
 
-    def resolve_memory_address(self, address) -> int:
-        if isinstance(address, Register):
-            return address.get()
-        return int(address)
+    def resolve_memory_address(self, address: Register) -> int:
+        if not isinstance(address, Register):
+            raise ValueError("memory address should be a pointer!")
+        memory_address = address.get()
+        self._validate_address(memory_address)
+        return memory_address
 
-    def read(self, address: int) -> int:
-        self._validate_address(address)
+    def read(self, memory_address: Register) -> int:
+        address = self.resolve_memory_address(memory_address)
         if self.data[address] < 0:
             raise ValueError(f"Trying to access un-initalized memory at {address}")
         return self.data[address]
 
-    def write(self, memory_address: int, value: int):
+    def write(self, memory_address: Register, value: int):
         address = self.resolve_memory_address(memory_address)
         self.data[address] = value & self.mask
 
-    def _validate_address(self, memory_address: int):
-        address = self.resolve_memory_address(memory_address)
+    def _validate_address(self, address: int):
         if address < 0:
             raise ValueError("Address should be >= 0")
         if address >= self.size:
