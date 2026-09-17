@@ -189,13 +189,11 @@ def test_halting():
         ("MOV", "R0", 0),
         ("MOV", "R1", 0),
         ("ADD", "R0", 1),
-        ("ADD", "R1", 5),
+        ("HALT", ),
         ("CMP", "R0", 10),
-        ("JL", 2)
     ])
-    for i in range(10):
+    for i in range(4):
         assert cpu.step() == True
-    cpu.halt()
     assert cpu.step() == False
 
 def test_reset():
@@ -221,24 +219,24 @@ def test_reset():
         assert reg.get() == 0
 
 def test_cpu_store():
-    cpu = CPU(1)
+    cpu = CPU(2)
 
     cpu.load_program([
         ("MOV", "R0", 42),
-        ("STORE", 10, "R0"),
+        ("MOV", "R1", 10),
+        ("STORE", "R1", "R0"),
     ])
 
     cpu.execute()
-
-    assert cpu.memory.read(10) == 42
+    assert cpu.memory.data[10] == 42
 
 def test_cpu_load():
-    cpu = CPU(1)
-
-    cpu.memory.write(10, 42)
+    cpu = CPU(2)
+    cpu.memory.data[10] = 42
 
     cpu.load_program([
-        ("LOAD", "R0", 10),
+        ("MOV", "R1", 10),
+        ("LOAD", "R0", "R1"),
     ])
 
     cpu.execute()
