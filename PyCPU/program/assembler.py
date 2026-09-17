@@ -9,6 +9,11 @@ class Assembler:
         program = []
         address = 0
         for instruction in source_code:
+            if not isinstance(instruction, tuple):
+                program.append((instruction, ))
+                address += 1
+                continue
+
             if instruction[0].upper() == "LABEL":
                 if len(instruction) != 2:
                     raise ValueError("LABEL expects exactly one argument")
